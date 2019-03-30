@@ -3,17 +3,44 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Card, Button } from 'react-native-elements';
 import Deck from './src/Deck';
 
-let DATA = [];
-let dataLoaded = false;
+let DATA = [
+    { key: 0, title: 'abc', link: 'https://source.unsplash.com/featured/?jean back pocket' },
+    { key: 1, title: 'def', link: 'https://source.unsplash.com/featured/?skinny jeans' },
+    { key: 2, title: 'grgegrge', link: 'https://source.unsplash.com/featured/?skinny jeans ass' },
+    { key: 3, title: 'fewgrherht', link: 'https://source.unsplash.com/featured/?woman leg' },
+    { key: 4, title: 'ab14322r23c', link: 'https://source.unsplash.com/featured/?wonder woman' },
+    { key: 5, title: 'ergergreg34', link: 'https://source.unsplash.com/featured/?woman navel' },
+    { key: 6, title: 'rgege321424', link: 'https://source.unsplash.com/featured/?woman blue bikini' },
+    { key: 7, title: 'qweqe5456', link: 'https://source.unsplash.com/featured/?bikini' },
+];
+let start = 1;
+let url = `https://www.googleapis.com/customsearch/v1` +
+    `?key=${Expo.Constants.manifest.extra.key}&cx=${Expo.Constants.manifest.extra.cx}` +
+    `&q=${Expo.Constants.manifest.extra.q}&filter=1&searchType=image&imgType=photo&imgSize=large&start=${start}`;
 
 export default class App extends React.Component {
     componentWillMount() {
-        fetch(`https://www.googleapis.com/customsearch/v1?key=${Expo.Constants.manifest.extra.key}&cx=${Expo.Constants.manifest.extra.cx}&q=${Expo.Constants.manifest.extra.q}&filter=1&searchType=image&imgType=photo&imgSize=large`)
-            .then(response => { return response.json(); })
+        /*
+        for (var i = 0; i < 10; i++) {
+            this.getGoogleCustomSearchData();
+        }
+        */
+    }
+
+    getGoogleCustomSearchData() {
+        fetch(url).then(response => { return response.json(); })
             .then(json => {
-                DATA = json.items.filter(item => item.link).map((value, index) => { return { key: index, ...value } });
-                dataLoaded = true;
-                this.forceUpdate();
+                console.log(`start=${start}`);
+                console.log(json);
+                if (!json.error) {
+                    DATA = DATA.concat(json.items.filter(item => item.link).map((value, index) => { return { key: index + start - 1, ...value } }));
+                }
+
+                if (start == 1) {
+                    this.forceUpdate();
+                }
+
+                start += 10;
             });
     }
 
@@ -39,7 +66,7 @@ export default class App extends React.Component {
     }
 
     render() {
-        if (!dataLoaded) return null;
+        if (DATA.length < 1) return null;
 
         return (
             <View style={styles.container}>
